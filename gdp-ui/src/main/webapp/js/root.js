@@ -2,7 +2,7 @@
 /*jslint sloppy : true */
 /*global log4javascript */
 /*global $ */
-/*global cookie */
+/*global logger */
 /*global window */
 /*global CSWClient */
 /*global incomingParams */
@@ -82,26 +82,26 @@ function createPopupView(popupText, overrideCookie) {
     var popupDiv = $(Constant.divString).attr('id', 'info_popup_modal_window').append(popupText);
 
     if (!overrideCookie) {
-        if (cookie.get('gdp-hide-popup')) {
+		if ($.cookie('gdp-hide-popup')) {
 			return true;
 		}
-        $(popupDiv).append(
-            $(Constant.divString).attr('id', 'info_popup_modal_window_hide_popup_option').append(
-                "Do not show this again?",
-                $(Constant.inputString).attr({
-                    'type': 'checkbox',
-                    'id' : 'dont-show-again-check'
-                })
+		$(popupDiv).append(
+			$(Constant.divString).attr('id', 'info_popup_modal_window_hide_popup_option').append(
+			"Do not show this again?",
+			$(Constant.inputString).attr({
+			'type': 'checkbox',
+			'id': 'dont-show-again-check'
+		})
 			)
-		);
-        $('#dont-show-again-check').live('change', function (action) {
-            if (action.target.checked) {
-                cookie.set('gdp-hide-popup', 'true', '');
-            } else {
-                cookie.del('gdp-hide-popup');
-            }
-        });
-    }
+			);
+		$('#dont-show-again-check').live('change', function (action) {
+			if (action.target.checked) {
+				$.cookie('gdp-hide-popup', 'true');
+			} else {
+				$.removeCookie('gdp-hide-popup');
+			}
+		});
+	}
 
     $('body').append(popupDiv);
     $('#info_popup_modal_window').dialog({
@@ -399,13 +399,6 @@ function loadStep(stepNum) {
     return true;
 }
 
-function showIntro() {
-    $.colorbox({
-        href: 'jsp/intro.jsp',
-        width: '600px',
-        transition: 'none'
-    });
-}
 function resizeElements() {
     logger.trace("GDP:root.js::resizeElements(): The application window is resizing. Resizing all elements to fit.");
     resizeCenterDiv();
@@ -567,9 +560,13 @@ function testPreflightParams () {
 
 	for (vIdx; vIdx < vars.length; vIdx++) {
 		pair = vars[vIdx].split('=');
-		key = pair[0];
-		value = pair[1];
-		incomingParams[key] = value;
+		if (pair.length === 2) {
+			key = pair[0];
+			value = pair[1];
+			if (key) {
+				incomingParams[key] = value;
+			}
+		}
 	}
 
     if (!incomingParams['development'] && (!incomingParams['algorithm'] || !incomingParams['dataset'])) {
@@ -605,18 +602,18 @@ function testPreflightParams () {
 }
 
 $(document).ready(function () {
-    try {
+	try {
+		initializeLogging();
 		testPreflightParams();
-        initializeLogging();
 
-        if (init()) {
-            logger.debug("GDP: Application initialized successfully.");
-            removeOverlay();
-        } else {
-            logger.error("GDP: A non-fatal error occured while loading the application.");
-        }
-        
-    } catch(err) {
-        handleException(err);
-    }
+		if (init()) {
+			logger.debug("GDP: Application initialized successfully.");
+			removeOverlay();
+		} else {
+			logger.error("GDP: A non-fatal error occured while loading the application.");
+		}
+
+	} catch (err) {
+		handleException(err);
+	}
 });

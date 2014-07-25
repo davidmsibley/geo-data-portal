@@ -27,7 +27,7 @@
             coverage_wcs: <input type="text" name="coverage_wcs" size="90" value="http://my-beta.usgs.gov/catalogMaps/mapping/ows/4f4e4799e4b07f02db48f9dd" /><br />
 
             
-            <input type="submit" name="submit" value="Go!">
+            <input type="submit" name="input-submit" value="Go!">
         </form>
     </body>
 </html>

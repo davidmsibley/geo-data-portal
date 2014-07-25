@@ -9,6 +9,9 @@
 	<artifactId>gdp-ui</artifactId>
 	<packaging>war</packaging>
 	<name>GDP UI</name>
+	<properties>
+		<version.cookie.jquery>1.4.0</version.cookie.jquery>
+	</properties>
 	<licenses>
 		<license>
 			<name>Public Domain</name>
@@ -115,6 +118,11 @@
 			<artifactId>gdp-csw-client</artifactId>
 			<version>${project.version}</version>
 			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery-cookie</artifactId>
+			<version>${version.cookie.jquery}</version>
 		</dependency>
 		<!-- /JS LIBS -->
         
@@ -271,6 +279,12 @@
 				</configuration>
 			</plugin>-->
 		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<finalName>GDP_WEB</finalName>
 	</build>
 </project>

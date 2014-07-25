@@ -1230,98 +1230,111 @@ var Dataset = function() {
             'catalog-url': [datasetURL],
             'grid': [selectedGrid],
             'allow-cached-response': [useCache]
-        }
+        };
         var getTimeRangeWpsOutput = ['result_as_json'];
 
         WPS.sendWpsExecuteRequest(
-            Constant.endpoint.proxy + Constant.endpoint.utilitywps, 
-            getTimeRangeWpsAlgorithm, 
-            getTimeRangeWpsInputs,
-            getTimeRangeWpsOutput, 
-            false, 
-            initDatePickers,
+			Constant.endpoint.proxy + Constant.endpoint.utilitywps,
+			getTimeRangeWpsAlgorithm,
+			getTimeRangeWpsInputs,
+			getTimeRangeWpsOutput,
+			false,
+			initDatePickers,
 			null,
-			true, 
-			'json', 
+			true,
+			'json',
 			'application/json'
-            );
+			);
     }
 
-    function initDatePickers(json) {
-        if (!json || !json.availabletimes || !json.availabletimes.time || json.availabletimes.time.length === 0) {
-            $(_DATASET_ID_TOOLTIP).hide();
-            $(_DATASET_ID_LABEL).hide();
-            $(_DATASET_ID).hide();
-            $(_WMS_LABEL).hide();
-            $(_WMS_TOOLTIP).hide();
-            $(_WMS_LAYER_SELECTBOX).hide();
-            $(_DATE_PICKER_TABLE).hide();
-            $(_DATE_PICKER_TOOLTIP).hide();
-            return false;
-        }
-        logger.debug('GDP: Initiating date pickers for grid timerange.');
-        
-        var dates = json.availabletimes.time || [];
+	function initDatePickers (json) {
+		if (!json || !json.availabletimes) {
+			$(_DATASET_ID_TOOLTIP).hide();
+			$(_DATASET_ID_LABEL).hide();
+			$(_DATASET_ID).hide();
+			$(_WMS_LABEL).hide();
+			$(_WMS_TOOLTIP).hide();
+			$(_WMS_LAYER_SELECTBOX).hide();
+			$(_DATE_PICKER_TABLE).hide();
+			$(_DATE_PICKER_TOOLTIP).hide();
+			return false;
+		}
+		
+		_hasTimeRange = false;
+		if (!json.availabletimes.time || json.availabletimes.time.length === 0) {
+			logger.debug('GDP: This grid does not contain a time range.');
+			return true;
+		}
+		
 		var startTime = json.availabletimes.time[0];
 		var endTime = json.availabletimes.time[1];
-        if (!startTime || !endTime) {
-            logger.debug('GDP: This grid does not contain a time range.');
-            _hasTimeRange = false;
-            return true;
-        }
-        _hasTimeRange = true;
+		if (!startTime || !endTime) {
+			logger.debug('GDP: This grid does not contain a time range.');
+			return true;
+		}
+		_hasTimeRange = true;
+		logger.debug('GDP: Initiating date pickers for grid timerange.');
 
-        var fromDate = $.datepicker.parseDate('yy-mm-dd',startTime.split('T')[0]);
-        var toDate = $.datepicker.parseDate('yy-mm-dd', endTime.split('T')[0]);
-        logger.debug('GDP: Grid time range is from ' + fromDate + ' to ' + toDate);
-        
-        $(_DATE_RANGE_FROM_INPUT_BOX).datepicker("destroy");
-        $(_DATE_RANGE_TO_INPUT_BOX).datepicker("destroy");
-        $(_DATE_RANGE_FROM_INPUT_BOX).datepicker();
-        $(_DATE_RANGE_TO_INPUT_BOX).datepicker();
-        $(_DATE_RANGE_FROM_INPUT_BOX).datepicker('setDate', fromDate);
-        $(_DATE_RANGE_TO_INPUT_BOX).datepicker('setDate', toDate);
-        $.datepicker.setDefaults({
-            'minDate': fromDate,
-            'maxDate' : toDate,
-            'autoSize' : true,
-            'changeMonth' : true,
-            'changeYear' : true,
-            'defaultDate' : new Date(),
-            'duration' : 500,
-            'hideIfNoPrevNext': true
-        });
 
-        $(_DATE_RANGE_FROM_INPUT_BOX).blur(function(){
-            var fromDate = $(this).datepicker('option', 'minDate');
-            var toDate = $(this).datepicker('option', 'maxDate');
-            var formattedBeginDate = (fromDate.getMonth() + 1) + "/" + fromDate.getDate() + "/" + fromDate.getFullYear();
-            var formattedToDate = (toDate.getMonth() + 1) + "/" + toDate.getDate() + "/" + toDate.getFullYear();
-            
-            if (!$(this).val()) $(this).val(formattedBeginDate);
-            if (new Date($(this).val()).getTime() > toDate.getTime()) $(this).val(formattedToDate);
-            if (new Date($(this).val()).getTime() > new Date($(_DATE_RANGE_TO_INPUT_BOX).val()).getTime()) $(this).val($(_DATE_RANGE_TO_INPUT_BOX).val());
-            if (new Date($(this).val()).getTime() < fromDate.getTime()) $(this).val(formattedBeginDate);
-        });
-        $(_DATE_RANGE_TO_INPUT_BOX).blur(function(){
-            var fromDate = $(this).datepicker('option', 'minDate');
-            var toDate = $(this).datepicker('option', 'maxDate');
-            var formattedBeginDate = (fromDate.getMonth() + 1) + "/" + fromDate.getDate() + "/" + fromDate.getFullYear();
-            var formattedToDate = (toDate.getMonth() + 1) + "/" + toDate.getDate() + "/" + toDate.getFullYear();
-            
-            if (!$(this).val()) $(this).val(formattedToDate);
-            if (new Date($(this).val()).getTime() > toDate.getTime()) $(this).val(formattedToDate);
-            if (new Date($(this).val()).getTime() < new Date($(_DATE_RANGE_FROM_INPUT_BOX).val()).getTime()) $(this).val($(_DATE_RANGE_FROM_INPUT_BOX).val());
-            if (new Date($(this).val()).getTime() < fromDate.getTime()) $(this).val(formattedBeginDate);
-        }); 
+		var fromDate = $.datepicker.parseDate('yy-mm-dd', startTime.split('T')[0]);
+		var toDate = $.datepicker.parseDate('yy-mm-dd', endTime.split('T')[0]);
+		logger.debug('GDP: Grid time range is from ' + fromDate + ' to ' + toDate);
 
-        $(_DATE_PICKER_TOOLTIP).fadeIn(Constant.ui.fadespeed);
-        $(_DATE_PICKER_TABLE).fadeIn(Constant.ui.fadespeed);
-        $(_DATASET_ID_TOOLTIP).fadeIn(Constant.ui.fadespeed);
-        $(_DATASET_ID).fadeIn(Constant.ui.fadespeed);
-        $(_DATASET_ID_LABEL).fadeIn(Constant.ui.fadespeed);
-        return true;
-    }
+		$(_DATE_RANGE_FROM_INPUT_BOX).datepicker("destroy");
+		$(_DATE_RANGE_TO_INPUT_BOX).datepicker("destroy");
+		$(_DATE_RANGE_FROM_INPUT_BOX).datepicker();
+		$(_DATE_RANGE_TO_INPUT_BOX).datepicker();
+		$(_DATE_RANGE_FROM_INPUT_BOX).datepicker('setDate', fromDate);
+		$(_DATE_RANGE_TO_INPUT_BOX).datepicker('setDate', toDate);
+		$.datepicker.setDefaults({
+			'minDate': fromDate,
+			'maxDate': toDate,
+			'autoSize': true,
+			'changeMonth': true,
+			'changeYear': true,
+			'defaultDate': new Date(),
+			'duration': 500,
+			'hideIfNoPrevNext': true
+		});
+
+		$(_DATE_RANGE_FROM_INPUT_BOX).blur(function () {
+			var fromDate = $(this).datepicker('option', 'minDate');
+			var toDate = $(this).datepicker('option', 'maxDate');
+			var formattedBeginDate = (fromDate.getMonth() + 1) + "/" + fromDate.getDate() + "/" + fromDate.getFullYear();
+			var formattedToDate = (toDate.getMonth() + 1) + "/" + toDate.getDate() + "/" + toDate.getFullYear();
+
+			if (!$(this).val())
+				$(this).val(formattedBeginDate);
+			if (new Date($(this).val()).getTime() > toDate.getTime())
+				$(this).val(formattedToDate);
+			if (new Date($(this).val()).getTime() > new Date($(_DATE_RANGE_TO_INPUT_BOX).val()).getTime())
+				$(this).val($(_DATE_RANGE_TO_INPUT_BOX).val());
+			if (new Date($(this).val()).getTime() < fromDate.getTime())
+				$(this).val(formattedBeginDate);
+		});
+		$(_DATE_RANGE_TO_INPUT_BOX).blur(function () {
+			var fromDate = $(this).datepicker('option', 'minDate');
+			var toDate = $(this).datepicker('option', 'maxDate');
+			var formattedBeginDate = (fromDate.getMonth() + 1) + "/" + fromDate.getDate() + "/" + fromDate.getFullYear();
+			var formattedToDate = (toDate.getMonth() + 1) + "/" + toDate.getDate() + "/" + toDate.getFullYear();
+
+			if (!$(this).val())
+				$(this).val(formattedToDate);
+			if (new Date($(this).val()).getTime() > toDate.getTime())
+				$(this).val(formattedToDate);
+			if (new Date($(this).val()).getTime() < new Date($(_DATE_RANGE_FROM_INPUT_BOX).val()).getTime())
+				$(this).val($(_DATE_RANGE_FROM_INPUT_BOX).val());
+			if (new Date($(this).val()).getTime() < fromDate.getTime())
+				$(this).val(formattedBeginDate);
+		});
+
+		$(_DATE_PICKER_TOOLTIP).fadeIn(Constant.ui.fadespeed);
+		$(_DATE_PICKER_TABLE).fadeIn(Constant.ui.fadespeed);
+		$(_DATASET_ID_TOOLTIP).fadeIn(Constant.ui.fadespeed);
+		$(_DATASET_ID).fadeIn(Constant.ui.fadespeed);
+		$(_DATASET_ID_LABEL).fadeIn(Constant.ui.fadespeed);
+		return true;
+	}
 
     function getWmsLayers(wmsURL) {
         callWMS({

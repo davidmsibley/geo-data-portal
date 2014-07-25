@@ -24,7 +24,7 @@ GDP.CSW = function (args) {
 			success: [],
 			error: []
 		},
-			url = args.url || this.url,
+		url = args.url || this.url,
 			scbInd,
 			proxy = args.proxy || this.proxy,
 			capabilitiesDocument = args.capabilitiesDocument || this.capabilitiesDocument,
@@ -80,10 +80,10 @@ GDP.CSW = function (args) {
 
 			oDomDoc.setProperty("SelectionLanguage", "XPath");
 			oDomDoc.setProperty("SelectionNamespaces",
-					"xmlns:xhtml='http://www.w3.org/1999/xhtml' " +
-					"xmlns:xsl='http://www.w3.org/1999/XSL/Transform' " +
-					"xmlns:ows='http://www.opengis.net/ows' " +
-					"xmlns:csw='http://www.opengis.net/cat/csw/2.0.2'");
+				"xmlns:xhtml='http://www.w3.org/1999/xhtml' " +
+				"xmlns:xsl='http://www.w3.org/1999/XSL/Transform' " +
+				"xmlns:ows='http://www.opengis.net/ows' " +
+				"xmlns:csw='http://www.opengis.net/cat/csw/2.0.2'");
 			keywordNodes = capablitiesXmlDoc.selectNodes('//ows:Keywords/ows:Keyword');
 
 			for (kwInd = 0; kwInd < keywordNodes.length; kwInd++) {
@@ -110,7 +110,7 @@ GDP.CSW = function (args) {
 					if (recordSet.hasOwnProperty(rId)) {
 						record = recordSet[rId];
 						recordKeywords = this.getKeywordsForRecord({
-							recordId : rId
+							recordId: rId
 						});
 
 						for (rkwIdx = 0; rkwIdx < recordKeywords.length && records.indexOf(record) === -1; rkwIdx++) {
@@ -130,6 +130,8 @@ GDP.CSW = function (args) {
 		},
 		/**
 		 * Returns all keywords associated with a specific record
+		 * @param {type} args
+		 * @returns {Array|GDP.CSW.getKeywordsForRecord.keywords}
 		 */
 		getKeywordsForRecord = function (args) {
 			args = args || {};
@@ -161,15 +163,20 @@ GDP.CSW = function (args) {
 
 			return keywords;
 		},
+		/**
+		 * 
+		 * @param {type} args
+		 * @returns {undefined}
+		 */
 		getRecordsByKeywordsFromServer = function (args) {
 			args = args || {};
 			var keywords = args.keywords || [],
 				keyword,
 				callbacks = args.callbacks || {
-					success : [],
-					error : []
+					success: [],
+					error: []
 				},
-				maxRecords = args.maxRecords || 1000,
+			maxRecords = args.maxRecords || 1000,
 				scope = args.scope || this,
 				fInd,
 				kwInd,
@@ -193,31 +200,31 @@ GDP.CSW = function (args) {
 						property: "Anytext",
 						value: '*'
 					})
-				);
+					);
 			} else {
 				for (fInd = 0; fInd < keywords.length; fInd++) {
 					var keywordArr = keywords[fInd];
-					
+
 					orFilter = new OpenLayers.Filter.Logical({
 						type: OpenLayers.Filter.Logical.OR
 					});
-					
+
 					for (kwInd = 0; kwInd < keywordArr.length; kwInd++) {
 						keyword = keywordArr[kwInd];
 						if (filters.length < fInd + 1) {
 							filters.push([]);
 						}
-						
+
 						filter = new OpenLayers.Filter.Comparison({
 							type: OpenLayers.Filter.Comparison.LIKE,
 							property: "Anytext",
 							value: keyword,
-							matchCase : false
+							matchCase: false
 						});
-						
+
 						orFilter.filters.push(filter);
 					}
-					
+
 					if (orFilter && orFilter.filters.length) {
 						andFilter.filters.push(orFilter);
 					}
@@ -227,7 +234,7 @@ GDP.CSW = function (args) {
 			getRecRequest = cswGetRecFormat.write({
 				resultType: "results",
 				maxRecords: String(maxRecords),
-				outputSchema : "http://www.isotc211.org/2005/gmd",
+				outputSchema: "http://www.isotc211.org/2005/gmd",
 				Query: {
 					ElementSetName: {
 						value: "full"
@@ -245,22 +252,22 @@ GDP.CSW = function (args) {
 				success: function (response) {
 					var cswGetRecRespObj = cswGetRecFormat.read(response.responseXML || response.responseText),
 						scbInd;
-                
-                    if (cswGetRecRespObj.success !== false) {
-                        if (callbacks.success && callbacks.success.length) {
-                            for (scbInd = 0; scbInd < callbacks.success.length; scbInd++) {
-                                callbacks.success[scbInd].call(scope, cswGetRecRespObj);
-                            }
-                        }
-                    } else {
-                        GDP.CONFIG.ui.errorEncountered({
-							data : 'Unfortunately the metadata catalog is ' +
-                            'experiencing technical difficulties. For more information, ' + 
-                            'go to <a href="https://my.usgs.gov/confluence/display/GeoDataPortal/GDP+Home">'+
-                            'The Geo Data Portal Wiki</a> ',
-							recoverable : false
+
+					if (cswGetRecRespObj.success !== false) {
+						if (callbacks.success && callbacks.success.length) {
+							for (scbInd = 0; scbInd < callbacks.success.length; scbInd++) {
+								callbacks.success[scbInd].call(scope, cswGetRecRespObj);
+							}
+						}
+					} else {
+						GDP.CONFIG.ui.errorEncountered({
+							data: 'Unfortunately the metadata catalog is ' +
+								'experiencing technical difficulties. For more information, ' +
+								'go to <a href="https://my.usgs.gov/confluence/display/GeoDataPortal/GDP+Home">' +
+								'The Geo Data Portal Wiki</a> ',
+							recoverable: false
 						});
-                    }
+					}
 				},
 				failure: function (response) {
 					var scbInd;
@@ -272,6 +279,11 @@ GDP.CSW = function (args) {
 				}
 			});
 		},
+		/**
+		 * 
+		 * @param {type} args
+		 * @returns {undefined}
+		 */
 		getDomain = function (args) {
 			args = args || {};
 
@@ -279,10 +291,10 @@ GDP.CSW = function (args) {
 				propertyName = args.propertyName || '',
 				scope = args.scope || this,
 				callbacks = args.callbacks || {
-					success : [],
-					error : []
+					success: [],
+					error: []
 				},
-				getDomainReqData = cswGetDomainFormat.write({
+			getDomainReqData = cswGetDomainFormat.write({
 					PropertyName: propertyName
 				});
 
@@ -299,7 +311,7 @@ GDP.CSW = function (args) {
 						}
 					}
 				},
-				failure : function (response) {
+				failure: function (response) {
 					var scbInd;
 					if (callbacks.error) {
 						for (scbInd = 0; scbInd < callbacks.error.length; scbInd++) {
@@ -425,7 +437,7 @@ GDP.CSW = function (args) {
 							serviceIdentification = identificationInfo.serviceIdentification;
 							operationMetadataName = serviceIdentification.operationMetadata.name.CharacterString.value.toLowerCase();
 							if (operationMetadataName.indexOf('thredds') !== -1 ||
-									operationMetadataName === 'opendap') {
+								operationMetadataName === 'opendap') {
 								url = serviceIdentification.operationMetadata.linkage.URL;
 								urlTocswIdentifier[url] = ident;
 							}
@@ -452,7 +464,7 @@ GDP.CSW = function (args) {
 							transferOption = transferOptions[toIdx].onLine[0];
 							transferOptionName = transferOption.name.CharacterString.value.toLowerCase();
 							if (transferOptionName === 'opendap' ||
-									transferOptionName.indexOf('wcs') !== -1) {
+								transferOptionName.indexOf('wcs') !== -1) {
 								url = transferOption.linkage.URL;
 								urlTocswIdentifier[url] = ident;
 							}
@@ -477,7 +489,7 @@ GDP.CSW = function (args) {
 				endpoint = '';
 
 			if (record.hasOwnProperty('distributionInfo')) {
-				distributionInfo  = record.distributionInfo;
+				distributionInfo = record.distributionInfo;
 				if (distributionInfo.hasOwnProperty('transferOptions')) {
 					transferOptions = distributionInfo.transferOptions;
 					for (toIndex = 0; toIndex < transferOptions.length && endpoint === ''; toIndex++) {
@@ -516,37 +528,37 @@ GDP.CSW = function (args) {
 
 			return identToRecord;
 		},
-        getStatusFromRecord = function (args) {
-            args = args || {};
-            if (!args.record) {
+		getStatusFromRecord = function (args) {
+			args = args || {};
+			if (!args.record) {
 				throw "undefined record passed in";
 			}
-            var record = args.record,
-                status = '',
-                statusObject,
-                rIndex,
-                codeList,
-                identificationInfoArray,
-                identificationInfoObject;
-            
-            if (record.identificationInfo) {
-                identificationInfoArray = record.identificationInfo;
-                for (rIndex = 0; rIndex < identificationInfoArray.length && status === ''; rIndex++) {
-                    identificationInfoObject = identificationInfoArray[rIndex];
-                    if (identificationInfoObject.status) {
-                        statusObject = identificationInfoObject.status[0];
-                        if (statusObject.codeList) {
-                            codeList = statusObject.codeList;
-                            if (codeList.toLowerCase().indexOf('progresscode') > -1) {
-                                status = statusObject.codeListValue;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            return status;
-        },
+			var record = args.record,
+				status = '',
+				statusObject,
+				rIndex,
+				codeList,
+				identificationInfoArray,
+				identificationInfoObject;
+
+			if (record.identificationInfo) {
+				identificationInfoArray = record.identificationInfo;
+				for (rIndex = 0; rIndex < identificationInfoArray.length && status === ''; rIndex++) {
+					identificationInfoObject = identificationInfoArray[rIndex];
+					if (identificationInfoObject.status) {
+						statusObject = identificationInfoObject.status[0];
+						if (statusObject.codeList) {
+							codeList = statusObject.codeList;
+							if (codeList.toLowerCase().indexOf('progresscode') > -1) {
+								status = statusObject.codeListValue;
+							}
+						}
+					}
+				}
+			}
+
+			return status;
+		},
 		createFullRecordView = function (args) {
 			args = args || {};
 			if (!args.identifier) {
@@ -555,9 +567,9 @@ GDP.CSW = function (args) {
 			var identifier = args.identifier,
 				cswResponse,
 				getrecordXML = '<csw:GetRecordById xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" ' +
-					'xmlns:xlink="http://www.w3.org/1999/xlink" service="CSW" version="2.0.2" ' +
-					'outputFormat="application/xml" outputSchema="http://www.isotc211.org/2005/gmd">' +
-					'<csw:Id>' + identifier + '</csw:Id><csw:ElementSetName>full</csw:ElementSetName></csw:GetRecordById>';
+				'xmlns:xlink="http://www.w3.org/1999/xlink" service="CSW" version="2.0.2" ' +
+				'outputFormat="application/xml" outputSchema="http://www.isotc211.org/2005/gmd">' +
+				'<csw:Id>' + identifier + '</csw:Id><csw:ElementSetName>full</csw:ElementSetName></csw:GetRecordById>';
 			cswResponse = this.client.sendCSWRequest(getrecordXML);
 			this.client.handleCSWResponse("getrecordbyid", cswResponse, "html");
 		},
@@ -579,7 +591,7 @@ GDP.CSW = function (args) {
 				transferOptionName,
 				parentTitle,
 				opt,
-				option,
+				$option,
 				optionsCount = 0,
 				options = {},
 				url,
@@ -604,10 +616,10 @@ GDP.CSW = function (args) {
 						title = serviceIdentification.citation.title.CharacterString.value;
 
 						if ((operationMetadataName.toLowerCase() === 'opendap') ||
-								(operationMetadataName.toLowerCase().indexOf('wcs') !== -1 && optionsCount === 0)) {
+							(operationMetadataName.toLowerCase().indexOf('wcs') !== -1 && optionsCount === 0)) {
 							options[url] = {
-								name : operationMetadataName,
-								title : title
+								name: operationMetadataName,
+								title: title
 							};
 							optionsCount++;
 						}
@@ -628,10 +640,10 @@ GDP.CSW = function (args) {
 						operationMetadataName = transferOption.onLine[0].name.CharacterString.value;
 						title = record.identificationInfo[0].citation.title.CharacterString.value;
 						if (transferOptionName.toLowerCase() === 'opendap' ||
-								(transferOptionName.toLowerCase().indexOf('wcs') !== -1 && optionsCount === 0)) {
+							(transferOptionName.toLowerCase().indexOf('wcs') !== -1 && optionsCount === 0)) {
 							options[url] = {
-								name : operationMetadataName,
-								title : title
+								name: operationMetadataName,
+								title: title
 							};
 							optionsCount++;
 						}
@@ -642,7 +654,7 @@ GDP.CSW = function (args) {
 			if (optionsCount === 1) {
 				for (opt in options) {
 					if (options.hasOwnProperty(opt)) {
-						option = $('<option>').
+						$option = $('<option>').
 							attr({
 								value: opt + ';' + ident
 							}).
@@ -651,47 +663,39 @@ GDP.CSW = function (args) {
 					}
 				}
 			} else if (optionsCount > 1) {
-				option = $('<optgroup>').
-					attr({
-						label : parentTitle
-					}).
-					addClass('top-lvl-opt');
-				for (opt in options) {
-					if (options.hasOwnProperty(opt)) {
-						option.append(
-							$('<option>').
-								attr({
-									value: opt + ';' + ident
-								}).
-								html(options[opt].title)
-						);
-					}
-				}
+				$option = $('<option>').
+					addClass('top-lvl-opt opt-haschildren').
+					html(parentTitle + '&nbsp;&darr;');
+				
+				// This options object is used if this option is selected in order to create a secondary dropdown
+				// list using this options object
+				options.ident = ident;
+				$option.data('suboptions', options);
 			}
 
-			return option;
+			return $option;
 
 		};
 
 	return {
 		requestGetCapabilities: requestGetCapabilities,
-		getCapabilitiesKeywords : getCapabilitiesKeywords,
-		getRecordsByKeywordsFromServer : getRecordsByKeywordsFromServer,
-		getRecordsByKeywords : getRecordsByKeywords,
-		getDomain : getDomain,
-		getAlgorithmArrayFromRecord : getAlgorithmArrayFromRecord,
-		getTitleFromRecord : getTitleFromRecord,
-		getAbstractFromRecord : getAbstractFromRecord,
-		getEndpointFromRecord : getEndpointFromRecord,
-		getUrlToIdentifierFromRecords : getUrlToIdentifierFromRecords,
-		createOptionFromRecord : createOptionFromRecord,
-		getCswIdentToRecordMapFromRecordsArray : getCswIdentToRecordMapFromRecordsArray,
-		createFullRecordView : createFullRecordView,
-		getKeywordsForRecord : getKeywordsForRecord,
-        getStatusFromRecord : getStatusFromRecord,
-		url : this.url,
-		proxy : this.proxy,
-		client : this.cswClient,
-		capabilitiesDocument : this.capabilitiesDocument
+		getCapabilitiesKeywords: getCapabilitiesKeywords,
+		getRecordsByKeywordsFromServer: getRecordsByKeywordsFromServer,
+		getRecordsByKeywords: getRecordsByKeywords,
+		getDomain: getDomain,
+		getAlgorithmArrayFromRecord: getAlgorithmArrayFromRecord,
+		getTitleFromRecord: getTitleFromRecord,
+		getAbstractFromRecord: getAbstractFromRecord,
+		getEndpointFromRecord: getEndpointFromRecord,
+		getUrlToIdentifierFromRecords: getUrlToIdentifierFromRecords,
+		createOptionFromRecord: createOptionFromRecord,
+		getCswIdentToRecordMapFromRecordsArray: getCswIdentToRecordMapFromRecordsArray,
+		createFullRecordView: createFullRecordView,
+		getKeywordsForRecord: getKeywordsForRecord,
+		getStatusFromRecord: getStatusFromRecord,
+		url: this.url,
+		proxy: this.proxy,
+		client: this.cswClient,
+		capabilitiesDocument: this.capabilitiesDocument
 	};
 };

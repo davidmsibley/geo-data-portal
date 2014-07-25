@@ -31,9 +31,6 @@ CSWClient = function(cswhost, host) {
     this.getrecords_xsl = this.loadDocument("lib/xsl/getrecords.xsl");
     this.getrecordbyid_xsl = this.loadDocument("lib/xsl/getrecordbyid.xsl");
     this.defaults_xml = this.loadDocument("lib/xml/defaults.xml");
-    this.defaultschema = this.defaults_xml.selectSingleNode ?
-                            this.defaults_xml.selectSingleNode("/defaults/outputschema/text()").nodeValue :
-                            this.defaults_xml.evaluate("/defaults/maxrecords/text()", this.defaults_xml).iterateNext().data;
     this.capabilitiesMap = {};
     this.context = null;
     this.sbEndpoint = null;
@@ -42,6 +39,13 @@ CSWClient = function(cswhost, host) {
     this.currentSBFeatureSearch = null;
     this.lowerCorner = '-180 -90';
     this.upperCorner = '180 90';
+	
+	this.defaultschema;
+	try {
+		this.defaultschema = this.defaults_xml.selectSingleNode("/defaults/outputschema/text()").nodeValue;
+	} catch (ex) {
+		this.defaultschema = this.defaults_xml.evaluate("/defaults/maxrecords/text()", this.defaults_xml).iterateNext().data;
+	}
 };
 
 // Now that the object has a new constructor, I go ahead and slap on the old
@@ -232,9 +236,13 @@ CSWClient.prototype.getRecords = function(start) {
     csw_response = this.sendCSWRequest(request);
 
     results += "<request start=\"" + start + "\"" + " maxrecords=\"";
-    results += this.defaults_xml.selectSingleNode ?
-            this.defaults_xml.selectSingleNode("/defaults/maxrecords/text()").nodeValue :
-            this.defaults_xml.evaluate("/defaults/maxrecords/text()", this.defaults_xml).iterateNext().data;
+	
+	try {
+		results += this.defaults_xml.selectSingleNode("/defaults/maxrecords/text()").nodeValue;
+	} catch (ex) {
+		results += this.defaults_xml.evaluate("/defaults/maxrecords/text()", this.defaults_xml).iterateNext().data;
+	}
+	
     results += "\"/></results>";
 
     if (window.ActiveXObject) {
