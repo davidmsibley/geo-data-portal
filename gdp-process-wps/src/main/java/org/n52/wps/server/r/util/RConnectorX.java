@@ -34,13 +34,13 @@ import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 
-public class RConnector {
+public class RConnectorX {
 
     private static final long START_ATTEMPT_SLEEP = 1000l;
 
     private static final int START_ATTEMP_COUNT = 5;
 
-    private static Logger log = LoggerFactory.getLogger(RConnector.class);
+    private static Logger log = LoggerFactory.getLogger(RConnectorX.class);
 
     public RConnection getNewConnection(boolean enableBatchStart, String host, int port, String user, String password) throws RserveException {
         RConnection con = null;

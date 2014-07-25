@@ -50,9 +50,9 @@ import com.google.common.base.Joiner;
  *
  * @author isuftin
  */
-public class PostgresDatabase extends AbstractDatabase {
+public class PostgresDatabaseX extends AbstractDatabase {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PostgresDatabase.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostgresDatabaseX.class);
     
     private static final String DEFAULT_ENCODING = "UTF-8";
 
@@ -80,7 +80,7 @@ public class PostgresDatabase extends AbstractDatabase {
 
     private static String connectionURL;
     private static Path BASE_DIRECTORY;
-    private static PostgresDatabase instance;
+    private static PostgresDatabaseX instance;
     private static ConnectionHandler connectionHandler;
 
     protected static Timer wipeTimer;
@@ -93,7 +93,7 @@ public class PostgresDatabase extends AbstractDatabase {
             + "RESPONSE TEXT, "
             + "RESPONSE_MIMETYPE VARCHAR(100))";
 
-    private PostgresDatabase() {
+    private PostgresDatabaseX() {
         try {
             Class.forName("org.postgresql.Driver");
             PropertyUtil propertyUtil = new PropertyUtil(server.getDatabase().getPropertyArray(), KEY_DATABASE_ROOT);
@@ -122,7 +122,7 @@ public class PostgresDatabase extends AbstractDatabase {
             long periodMillis = propertyUtil.extractPeriodAsMillis(KEY_DATABASE_WIPE_PERIOD, DEFAULT_DATABASE_WIPE_PERIOD);
             long thresholdMillis = propertyUtil.extractPeriodAsMillis(KEY_DATABASE_WIPE_THRESHOLD, DEFAULT_DATABASE_WIPE_THRESHOLD);
             wipeTimer = new Timer(getClass().getSimpleName() + " Postgres Wiper", true);
-            wipeTimer.scheduleAtFixedRate(new PostgresDatabase.WipeTimerTask(thresholdMillis), 15000, periodMillis);
+            wipeTimer.scheduleAtFixedRate(new PostgresDatabaseX.WipeTimerTask(thresholdMillis), 15000, periodMillis);
             LOGGER.info("Started {} Postgres wiper timer; period {} ms, threshold {} ms",
                     new Object[]{getDatabaseName(), periodMillis, thresholdMillis});
         } else {
@@ -131,20 +131,20 @@ public class PostgresDatabase extends AbstractDatabase {
     }
 
     private void initializeConnectionHandler() throws SQLException, NamingException {
-        String jndiName = getDatabaseProperties("jndiName");
-        if (null != jndiName) {
-            connectionHandler = new JNDIConnectionHandler(jndiName);
-        } else {
-            connectionURL = "jdbc:postgresql:" + getDatabasePath() + "/" + getDatabaseName();
-            LOGGER.debug("Database connection URL is: " + connectionURL);
-            String username = getDatabaseProperties("username");
-            String password = getDatabaseProperties("password");
-            Properties props = new Properties();
-            props.setProperty("create", "true");
-            props.setProperty("user", username);
-            props.setProperty("password", password);
-            connectionHandler = new DefaultConnectionHandler(connectionURL, props);
-        }
+//        String jndiName = DatabaseUtil.getDatabasePropertyUtil().extractString("jndiName", null);
+//        if (null != jndiName) {
+//            connectionHandler = new JNDIConnectionHandler(jndiName);
+//        } else {
+//            connectionURL = "jdbc:postgresql:" + getDatabasePath() + "/" + getDatabaseName();
+//            LOGGER.debug("Database connection URL is: " + connectionURL);
+//            String username = DatabaseUtil.getDatabasePropertyUtil().extractString("username", null);
+//            String password = DatabaseUtil.getDatabasePropertyUtil().extractString("password", null);
+//            Properties props = new Properties();
+//            props.setProperty("create", "true");
+//            props.setProperty("user", username);
+//            props.setProperty("password", password);
+//            connectionHandler = new DefaultConnectionHandler(connectionURL, props);
+//        }
     }
 
     private void initializeResultsTable() throws SQLException {
@@ -157,9 +157,9 @@ public class PostgresDatabase extends AbstractDatabase {
         }
     }
 
-    public static synchronized PostgresDatabase getInstance() {
+    public static synchronized PostgresDatabaseX getInstance() {
         if (instance == null) {
-            instance = new PostgresDatabase();
+            instance = new PostgresDatabaseX();
         }
         return instance;
     }
@@ -225,14 +225,14 @@ public class PostgresDatabase extends AbstractDatabase {
     	 * name of the file instead of the actual data
     	 */
     	boolean isOutput = null != id && id.toLowerCase().contains("output");
-    	if (isOutput && !Boolean.parseBoolean(getDatabaseProperties("saveResultsToDB"))) {
-            try {
-                data = writeDataToDiskWithGZIP(id, data);
-            } catch (Exception ex) {
-                LOGGER.error("Failed to write output data to disk", ex);
-            }
-        }
-    	
+//    	if (isOutput && !DatabaseUtil.getDatabasePropertyUtil().extractBoolean("saveResultsToDB", true)) {
+//            try {
+//                data = writeDataToDiskWithGZIP(id, data);
+//            } catch (Exception ex) {
+//                LOGGER.error("Failed to write output data to disk", ex);
+//            }
+//        }
+//    	
     	Connection connection = getConnection();
     	
     	/**
@@ -378,21 +378,21 @@ public class PostgresDatabase extends AbstractDatabase {
             }
 
             if (null != result) {
-                if (id.toLowerCase().contains("output") && !Boolean.parseBoolean(getDatabaseProperties("saveResultsToDB"))) {
-                    try {
-                        String outputFileLocation = IOUtils.toString(result);
-                        LOGGER.debug("ID {} is output and saved to disk instead of database. Path = " + outputFileLocation);
-                        if (Files.exists(Paths.get(outputFileLocation))) {
-                            result = new GZIPInputStream(new FileInputStream(outputFileLocation));
-                        } else {
-                            LOGGER.warn("Response not found on disk for id " + id + " at " + outputFileLocation);
-                        }
-                    } catch (FileNotFoundException ex) {
-                        LOGGER.warn("Response not found on disk for id " + id, ex);
-                    } catch (IOException ex) {
-                        LOGGER.warn("Error processing response for id " + id, ex);
-                    }
-                }
+//                if (id.toLowerCase().contains("output") && !DatabaseUtil.getDatabasePropertyUtil().extractBoolean("saveResultsToDB", true)) {
+//                    try {
+//                        String outputFileLocation = IOUtils.toString(result);
+//                        LOGGER.debug("ID {} is output and saved to disk instead of database. Path = " + outputFileLocation);
+//                        if (Files.exists(Paths.get(outputFileLocation))) {
+//                            result = new GZIPInputStream(new FileInputStream(outputFileLocation));
+//                        } else {
+//                            LOGGER.warn("Response not found on disk for id " + id + " at " + outputFileLocation);
+//                        }
+//                    } catch (FileNotFoundException ex) {
+//                        LOGGER.warn("Response not found on disk for id " + id, ex);
+//                    } catch (IOException ex) {
+//                        LOGGER.warn("Error processing response for id " + id, ex);
+//                    }
+//                }
             } else {
                 LOGGER.warn("response found but returned null");
             }
@@ -422,15 +422,15 @@ public class PostgresDatabase extends AbstractDatabase {
 
     @Override
     public File lookupResponseAsFile(String id) {
-        if (id.toLowerCase().contains("output") && !Boolean.parseBoolean(getDatabaseProperties("saveResultsToDB"))) {
-            try {
-                String outputFileLocation = IOUtils.toString(lookupResponse(id));
-                return new File(new URI(outputFileLocation));
-            } catch (URISyntaxException | IOException ex) {
-                LOGGER.warn("Could not get file location for response file for id " + id, ex);
-            }
-        }
-        LOGGER.warn("requested response as file for a response stored in the database, returning null");
+//        if (id.toLowerCase().contains("output") && !DatabaseUtil.getDatabasePropertyUtil().extractBoolean("saveResultsToDB", true)) {
+//            try {
+//                String outputFileLocation = IOUtils.toString(lookupResponse(id));
+//                return new File(new URI(outputFileLocation));
+//            } catch (URISyntaxException | IOException ex) {
+//                LOGGER.warn("Could not get file location for response file for id " + id, ex);
+//            }
+//        }
+//        LOGGER.warn("requested response as file for a response stored in the database, returning null");
         return null;
     }
 
@@ -466,6 +466,15 @@ public class PostgresDatabase extends AbstractDatabase {
         
         return filePath.toUri().toString().replaceFirst(FILE_URI_PREFIX, "");
     }
+
+	protected void closeConnection(Connection con) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public void shutdown() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
 
     private interface ConnectionHandler {
 
@@ -522,17 +531,17 @@ public class PostgresDatabase extends AbstractDatabase {
         @Override
         public void run() {
             LOGGER.info(getDatabaseName() + " Postgres wiper, checking for records older than {} ms", thresholdMillis);
-            Boolean savingResultsToDB = Boolean.parseBoolean(getDatabaseProperties("saveResultsToDB"));
-            try {
-                int deletedRecordsCount = wipe(savingResultsToDB);
-                if (deletedRecordsCount > 0) {
-                    LOGGER.info(getDatabaseName() + " Postgres wiper, cleaned {} records from database", deletedRecordsCount);
-                } else {
-                    LOGGER.debug(getDatabaseName() + " Postgres wiper, cleaned {} records from database", deletedRecordsCount);
-                }
-            } catch (SQLException | IOException ex) {
-                LOGGER.warn(getDatabaseName() + " Postgres wiper, failed to deleted old records", ex);
-            }
+//            Boolean savingResultsToDB = DatabaseUtil.getDatabasePropertyUtil().extractBoolean("saveResultsToDB", true);
+//            try {
+//                int deletedRecordsCount = wipe(savingResultsToDB);
+//                if (deletedRecordsCount > 0) {
+//                    LOGGER.info(getDatabaseName() + " Postgres wiper, cleaned {} records from database", deletedRecordsCount);
+//                } else {
+//                    LOGGER.debug(getDatabaseName() + " Postgres wiper, cleaned {} records from database", deletedRecordsCount);
+//                }
+//            } catch (SQLException | IOException ex) {
+//                LOGGER.warn(getDatabaseName() + " Postgres wiper, failed to deleted old records", ex);
+//            }
         }
 
         private int wipe(Boolean saveResultsToDB) throws SQLException, IOException {

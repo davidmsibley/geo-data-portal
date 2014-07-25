@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import net.opengis.wps.x100.ProcessDescriptionType;
 import net.opengis.wps.x100.ProcessDescriptionsDocument;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -21,6 +20,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import org.junit.Ignore;
 
 /**
  *
@@ -48,7 +48,8 @@ public class AlgorithmTestIT {
     @After
     public void tearDown() {
     }
-
+	
+	@Ignore
     @Test
     public void validateFeatureCoverageIntersectionAlgorithmDescribeProcess() throws IOException, XmlException {
         String url = describeProcessPrepend + "gov.usgs.cida.gdp.wps.algorithm.FeatureCoverageIntersectionAlgorithm";

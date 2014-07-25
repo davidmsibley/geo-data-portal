@@ -59,15 +59,17 @@
             <Property name="Algorithm" active="true">gov.usgs.cida.gdp.wps.algorithm.PRMSParameterGeneratorAlgorithm</Property>
         </Repository>
         <Repository name="LocalRAlgorithmRepository" className="org.n52.wps.server.r.LocalRAlgorithmRepository" active="false">
-            <Property name="Enable_Batch_Start" active="true">true</Property>
-            <Property name="R_Datatype_Config" active="true">R/R_Datatype.conf</Property>
-            <Property name="R_Work_Dir" active="true">default</Property>
-            <Property name="Resource_Dir" active="true">R/resources</Property>
-            <Property name="Script_Dir" active="true">R/scripts</Property>
-            <Property active="true" name="Rserve_Host">localhost</Property>
-            <Property active="true" name="Rserve_Port">6311</Property>
-            <Property name="Rserve_User" active="true">user</Property>
-            <Property active="true" name="Rserve_Password">not_actually_password</Property>
+			<Property active="true" name="Algorithm">org.n52.wps.server.r.gridded_bioclim</Property>
+			<Property active="true" name="Algorithm">org.n52.wps.server.r.gridded_daily</Property>
+			<Property name="R_datatypeConfig" active="true">R/R_Datatype.conf</Property>
+			<Property name="R_enableBatchStart" active="true">true</Property>
+			<Property name="R_resourceDirectory" active="true">R/resources</Property>
+			<Property active="true" name="R_RserveHost">localhost</Property>
+			<Property active="true" name="R_RservePassword">not_actually_password</Property>
+			<Property active="true" name="R_RservePort">6311</Property>
+			<Property name="R_RserveUser" active="true">gdp</Property>
+			<Property name="R_scriptDirectory" active="true">R/scripts</Property>
+			<Property name="R_wdName" active="true">default</Property>
         </Repository>
     </AlgorithmRepositoryList>
     <!-- @hostname@, @hostport@ and @webappPath@ are filtered and replaced by values derived from
@@ -96,7 +98,7 @@
         -->
         <Database>
             <Property active="true" name="databaseClass">org.n52.wps.server.database.PostgresDatabase</Property>
-            <Property active="true" name="jndiName">gdp</Property> 
+            <Property active="true" name="jndiName">gdp</Property>
             <Property active="true" name="saveResultsToDb">false</Property>
             <Property name="wipe.enabled" active="true">true</Property>
             <Property name="wipe.period" active="true">PT1H</Property>

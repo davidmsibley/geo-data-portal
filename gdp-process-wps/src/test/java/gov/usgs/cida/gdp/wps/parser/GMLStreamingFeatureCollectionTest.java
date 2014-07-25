@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
@@ -63,6 +64,7 @@ public class GMLStreamingFeatureCollectionTest {
         }
     }
 
+	@Ignore
     @Test
     public void testArcGISWFSParse() {
         GMLStreamingFeatureCollection fc = new GMLStreamingFeatureCollection(arcGis);
